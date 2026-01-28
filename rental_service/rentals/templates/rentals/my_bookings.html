@@ -1,0 +1,236 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - LuxDrive</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .bookings-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .booking-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .booking-id {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-approved {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .status-rejected {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .booking-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-group h4 {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .detail-group p {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .rejection-reason {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fee2e2;
+            border-left: 4px solid #dc2626;
+            border-radius: 8px;
+        }
+
+        .rejection-reason h4 {
+            color: #dc2626;
+            margin-bottom: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">LuxDrive</div>
+                <div class="nav-links">
+                    <a href="/">Home</a>
+                    <a href="/#cars">Cars</a>
+                    <a href="/my-bookings/">My Bookings</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="bookings-container">
+        <div class="page-header">
+            <h1>My Bookings</h1>
+            <p>View and track all your rental requests</p>
+        </div>
+
+        <div id="bookingsList">
+            <!-- Bookings will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        // Load bookings on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            loadBookings();
+        });
+
+        async function loadBookings() {
+            try {
+                const response = await fetch('/api/rentals/');
+                const bookings = await response.json();
+                displayBookings(bookings);
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+            }
+        }
+
+        function displayBookings(bookings) {
+            const container = document.getElementById('bookingsList');
+
+            if (bookings.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No bookings yet</h3>
+                        <p>Start by booking your first car!</p>
+                        <a href="/" class="btn-primary" style="display: inline-block; margin-top: 20px; text-decoration: none;">Browse Cars</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = bookings.map(booking => {
+                const statusClass = `status-${booking.status}`;
+                const statusText = booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
+
+                const startDate = new Date(booking.start_datetime).toLocaleString();
+                const endDate = new Date(booking.end_datetime).toLocaleString();
+
+                let rejectionHtml = '';
+                if (booking.status === 'rejected' && booking.rejection_reason) {
+                    rejectionHtml = `
+                        <div class="rejection-reason">
+                            <h4>Rejection Reason</h4>
+                            <p>${booking.rejection_reason}</p>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="booking-card">
+                        <div class="booking-header">
+                            <div class="booking-id">Booking #${booking.id}</div>
+                            <div class="status-badge ${statusClass}">${statusText}</div>
+                        </div>
+                        <div class="booking-details">
+                            <div class="detail-group">
+                                <h4>Car</h4>
+                                <p>${booking.car_id}</p>
+                            </div>
+                            <div class="detail-group">
+                                <h4>Customer</h4>
+                                <p>${booking.user_name}</p>
+                            </div>
+                            <div class="detail-group">
+                                <h4>Email</h4>
+                                <p>${booking.user_email}</p>
+                            </div>
+                            <div class="detail-group">
+                                <h4>Phone</h4>
+                                <p>${booking.user_phone}</p>
+                            </div>
+                            <div class="detail-group">
+                                <h4>Pickup Location</h4>
+                                <p>${booking.pickup_location}</p>
+                            </div>
+                            <div class="detail-group">
+                                <h4>Pickup Time</h4>
+                                <p>${startDate}</p>
+                            </div>
+                            <div class="detail-group">
+                                <h4>Return Time</h4>
+                                <p>${endDate}</p>
+                            </div>
+                            <div class="detail-group">
+                                <h4>Total Price</h4>
+                                <p>$${booking.total_price}</p>
+                            </div>
+                        </div>
+                        ${rejectionHtml}
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+
+</html>
