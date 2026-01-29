@@ -51,13 +51,29 @@ class Car(models.Model):
 class RentalRecord(models.Model):
     """Запись о бронировании для проверки конфликтов"""
     
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    rental_id = models.IntegerField(unique=True, help_text="ID from Rental Service")
     car_id = models.CharField(max_length=20)
+    user_name = models.CharField(max_length=100)
+    user_email = models.EmailField()
+    user_phone = models.CharField(max_length=20)
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
+    pickup_location = models.CharField(max_length=100)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        ordering = ['-start_datetime']
+        ordering = ['-created_at']
     
     def __str__(self):
-        return f"{self.car_id} - {self.start_datetime} to {self.end_datetime}"
+        return f"Rental #{self.rental_id} - {self.car_id} ({self.status})"
