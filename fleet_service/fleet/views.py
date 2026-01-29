@@ -16,7 +16,10 @@ def home(request):
 
 def admin_dashboard(request):
     """Админ-панель для управления заявками"""
-    return render(request, 'fleet/admin_dashboard.html')
+    context = {
+        'RENTAL_SERVICE_URL': settings.RENTAL_SERVICE_URL
+    }
+    return render(request, 'fleet/admin_dashboard.html', context)
 
 
 class CarViewSet(viewsets.ReadOnlyModelViewSet):
@@ -154,9 +157,8 @@ def approve_booking(request, rental_id):
     
     try:
         # Обновляем статус в Rental Service
-        rental_service_url = 'http://localhost:8002'  # URL Rental Service
         response = requests.patch(
-            f"{rental_service_url}/api/rentals/{rental_id}/",
+            f"{settings.RENTAL_SERVICE_URL}/api/rentals/{rental_id}/",
             json={'status': 'approved'},
             headers={'Content-Type': 'application/json'},
             timeout=5
@@ -193,9 +195,8 @@ def reject_booking(request, rental_id):
     
     try:
         # Обновляем статус в Rental Service
-        rental_service_url = 'http://localhost:8002'  # URL Rental Service
         response = requests.patch(
-            f"{rental_service_url}/api/rentals/{rental_id}/",
+            f"{settings.RENTAL_SERVICE_URL}/api/rentals/{rental_id}/",
             json={
                 'status': 'rejected',
                 'rejection_reason': rejection_reason

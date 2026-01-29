@@ -318,6 +318,9 @@
     </div>
 
     <script>
+        // Pass Django settings to JavaScript
+        const RENTAL_SERVICE_URL = "{{ RENTAL_SERVICE_URL }}";
+
         let allBookings = [];
 
         // Load bookings on page load
@@ -333,7 +336,7 @@
 
         async function loadBookings() {
             try {
-                const response = await fetch('http://localhost:8002/api/rentals/');
+                const response = await fetch(`${RENTAL_SERVICE_URL}/api/rentals/`);
                 allBookings = await response.json();
                 displayBookings(allBookings);
                 updateStats(allBookings);

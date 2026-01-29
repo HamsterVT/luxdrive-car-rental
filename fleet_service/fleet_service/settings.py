@@ -131,6 +131,9 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # CORS Settings
 CORS_ALLOW_ALL_ORIGINS = True
 
+# Rental Service URL for inter-service communication
+RENTAL_SERVICE_URL = os.environ.get('RENTAL_SERVICE_URL', 'http://localhost:8002')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
