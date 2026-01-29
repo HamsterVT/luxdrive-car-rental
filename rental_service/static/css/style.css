@@ -245,6 +245,33 @@ body {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
+.car-image-container {
+    position: relative;
+}
+
+.status-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 10;
+}
+
+.status-badge.busy {
+    background: rgba(220, 38, 38, 0.9);
+    color: white;
+    backdrop-filter: blur(4px);
+}
+
+.status-badge.available {
+    background: rgba(22, 163, 74, 0.9);
+    color: white;
+    backdrop-filter: blur(4px);
+}
+
 .car-image {
     width: 100%;
     height: 220px;

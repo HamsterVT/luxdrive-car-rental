@@ -54,11 +54,45 @@ function createCarCard(car) {
         imageSrc = `/static/images/${imagePath}`;
     }
 
+    // Determine status badge and button state
+    let statusBadge = '';
+    let buttonState = '';
+    let statusClass = '';
+
+    if (car.rental_status && car.rental_status.is_rented) {
+        const availableDate = new Date(car.rental_status.available_from).toLocaleDateString();
+        const availableTime = new Date(car.rental_status.available_from).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        statusBadge = `
+            <div class="status-badge busy">
+                Busy until ${availableDate} ${availableTime}
+            </div>
+        `;
+        // We still allow booking but user sees it's busy
+        buttonState = 'Book for Future';
+        statusClass = 'card-busy';
+    } else {
+        statusBadge = `
+            <div class="status-badge available">
+                Available Now
+            </div>
+        `;
+        buttonState = 'Book Now';
+    }
+
     card.innerHTML = `
-        <img src="${imageSrc}" alt="${car.brand} ${car.model}" class="car-image">
+        <div class="car-image-container">
+            ${statusBadge}
+            <img src="${imageSrc}" alt="${car.brand} ${car.model}" class="car-image">
+        </div>
         <div class="car-info">
-            <div class="car-brand">${car.brand}</div>
-            <div class="car-model">${car.model}</div>
+            <div class="car-header">
+                <div>
+                    <div class="car-brand">${car.brand}</div>
+                    <div class="car-model">${car.model}</div>
+                </div>
+            </div>
+            
             <div class="car-details">
                 <div class="detail-item">
                     <strong>${car.year}</strong>
@@ -69,7 +103,7 @@ function createCarCard(car) {
                     Color
                 </div>
                 <div class="detail-item">
-                    <strong>${car.fuel_level}%</strong>
+                    <strong>${car.fuel_type}</strong>
                     Fuel
                 </div>
                 <div class="detail-item">
@@ -77,13 +111,14 @@ function createCarCard(car) {
                     Location
                 </div>
             </div>
+            
             <div class="car-price">
                 <div>
                     <div class="price">$${car.hourly_rate}</div>
                     <div class="price-label">per hour</div>
                 </div>
                 <button class="btn-book" onclick="openBookingModal('${car.car_id}', '${car.brand} ${car.model}', '${car.location}')">
-                    Book Now
+                    ${buttonState}
                 </button>
             </div>
         </div>

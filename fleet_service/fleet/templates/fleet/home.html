@@ -331,7 +331,12 @@
                             style="width: {{ car.fuel_level }}%"></div>
                     </div>
 
-                    {% if car.fuel_level < 20 %} <span class="status-badge-small status-low-fuel">Low Fuel</span>
+                    {% if car.rental_status.is_rented %}
+                    <span class="status-badge-small"
+                        style="background: #fee2e2; color: #dc2626; border-color: #fee2e2;">
+                        Busy until {{ car.rental_status.available_from|date:"d M H:i" }}
+                    </span>
+                    {% elif car.fuel_level < 20 %} <span class="status-badge-small status-low-fuel">Low Fuel</span>
                         {% else %}
                         <span class="status-badge-small status-available">Available</span>
                         {% endif %}

@@ -13,6 +13,7 @@ class CarSerializer(serializers.ModelSerializer):
 class CarListSerializer(serializers.ModelSerializer):
     """Упрощенный сериализатор для списка автомобилей"""
     full_image_url = serializers.SerializerMethodField()
+    rental_status = serializers.SerializerMethodField()
     
     class Meta:
         model = Car
@@ -20,7 +21,7 @@ class CarListSerializer(serializers.ModelSerializer):
             'car_id', 'brand', 'model', 'year', 'color', 'car_type',
             'fuel_type', 'fuel_level', 'battery_level', 'location',
             'hourly_rate', 'daily_rate', 'is_available', 'is_under_maintenance',
-            'image_url', 'full_image_url'
+            'image_url', 'full_image_url', 'rental_status'
         ]
     
     def get_full_image_url(self, obj):
@@ -29,6 +30,31 @@ class CarListSerializer(serializers.ModelSerializer):
         if request and obj.image_url:
             return request.build_absolute_uri(obj.image_url)
         return obj.image_url
+
+    def get_rental_status(self, obj):
+        """Проверяет текущий статус аренды"""
+        from django.utils import timezone
+        now = timezone.now()
+        
+        # Ищем активную аренду (утвержденную и текущую по времени)
+        active_rental = RentalRecord.objects.filter(
+            car_id=obj.car_id,
+            status='approved',
+            start_datetime__lte=now,
+            end_datetime__gte=now
+        ).first()
+        
+        if active_rental:
+            return {
+                'is_rented': True,
+                'available_from': active_rental.end_datetime,
+                'current_rental_id': active_rental.rental_id
+            }
+        
+        return {
+            'is_rented': False,
+            'available_from': None
+        }
 
 
 class AvailabilityCheckSerializer(serializers.Serializer):

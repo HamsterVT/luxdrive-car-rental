@@ -12,7 +12,9 @@ import requests
 def home(request):
     """Главная страница Fleet Service"""
     cars = Car.objects.all()
-    return render(request, 'fleet/home.html', {'cars': cars})
+    # Serialize cars to include rental_status
+    serialized_cars = CarListSerializer(cars, many=True, context={'request': request}).data
+    return render(request, 'fleet/home.html', {'cars': serialized_cars})
 
 
 def admin_dashboard(request):
