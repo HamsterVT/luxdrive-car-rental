@@ -168,10 +168,23 @@ def approve_booking(request, rental_id):
         )
         
         if response.status_code == 200:
-            rental_data = response.json()
-            
-            # Регистрируем бронирование в Fleet Service
-            register_rental(request)
+            # Обновляем статус локальной записи
+            try:
+                rental_record = RentalRecord.objects.get(rental_id=rental_id)
+                rental_record.status = 'approved'
+                rental_record.save()
+                
+                # Обновляем статус машины (если это еще не сделано)
+                # Машина может быть занята
+                try:
+                    car = Car.objects.get(car_id=rental_record.car_id)
+                    car.is_available = False # Машина теперь "занята" (хотя технически это может быть в будущем)
+                    car.save()
+                except Car.DoesNotExist:
+                    pass
+                    
+            except RentalRecord.DoesNotExist:
+                print(f"Warning: RentalRecord for rental_id {rental_id} not found locally")
             
             return Response({
                 'status': 'success',
@@ -209,6 +222,14 @@ def reject_booking(request, rental_id):
         )
         
         if response.status_code == 200:
+            # Обновляем статус локальной записи
+            try:
+                rental_record = RentalRecord.objects.get(rental_id=rental_id)
+                rental_record.status = 'rejected'
+                rental_record.save()
+            except RentalRecord.DoesNotExist:
+                print(f"Warning: RentalRecord for rental_id {rental_id} not found locally")
+                
             return Response({
                 'status': 'success',
                 'message': 'Booking rejected successfully'
