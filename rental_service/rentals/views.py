@@ -92,7 +92,31 @@ class RentalViewSet(viewsets.ModelViewSet):
                 total_price=total_price
             )
             
-            # НЕ регистрируем бронирование в Fleet Service - только после подтверждения админом
+            # Регистрируем бронирование в Fleet Service
+            try:
+                rental_data = {
+                    'rental_id': rental.id,
+                    'car_id': rental.car_id,
+                    'user_name': rental.user_name,
+                    'user_email': rental.user_email,
+                    'user_phone': rental.user_phone,
+                    'start_datetime': rental.start_datetime.isoformat(),
+                    'end_datetime': rental.end_datetime.isoformat(),
+                    'pickup_location': rental.pickup_location,
+                    'total_price': str(total_price),
+                    'status': 'pending'
+                }
+                
+                fleet_register_response = requests.post(
+                    f"{settings.FLEET_SERVICE_URL}/api/rentals/register/",
+                    json=rental_data,
+                    timeout=5
+                )
+                
+                if fleet_register_response.status_code != 201:
+                    print(f"Warning: Failed to register rental in Fleet Service: {fleet_register_response.text}")
+            except Exception as e:
+                print(f"Warning: Could not register rental in Fleet Service: {str(e)}")
             
             return Response({
                 'status': 'success',
