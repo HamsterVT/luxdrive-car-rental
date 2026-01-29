@@ -157,15 +157,21 @@ def register_rental(request):
 @api_view(['POST'])
 def approve_booking(request, rental_id):
     """Подтвердить заявку на бронирование"""
+    print(f"DEBUG: Processing approve_booking for rental_id={rental_id}")
     
     try:
         # Обновляем статус в Rental Service
+        rental_service_url = settings.RENTAL_SERVICE_URL
+        print(f"DEBUG: Sending patch request to {rental_service_url}/api/rentals/{rental_id}/")
+        
         response = requests.patch(
-            f"{settings.RENTAL_SERVICE_URL}/api/rentals/{rental_id}/",
+            f"{rental_service_url}/api/rentals/{rental_id}/",
             json={'status': 'approved'},
             headers={'Content-Type': 'application/json'},
-            timeout=5
+            timeout=10
         )
+        print(f"DEBUG: Rental Service response code: {response.status_code}")
+        print(f"DEBUG: Rental Service response text: {response.text}")
         
         if response.status_code == 200:
             # Обновляем статус локальной записи
@@ -206,20 +212,26 @@ def approve_booking(request, rental_id):
 @api_view(['POST'])
 def reject_booking(request, rental_id):
     """Отклонить заявку на бронирование"""
+    print(f"DEBUG: Processing reject_booking for rental_id={rental_id}")
     
     rejection_reason = request.data.get('reason', 'No reason provided')
     
     try:
         # Обновляем статус в Rental Service
+        rental_service_url = settings.RENTAL_SERVICE_URL
+        print(f"DEBUG: Sending patch request to {rental_service_url}/api/rentals/{rental_id}/")
+        
         response = requests.patch(
-            f"{settings.RENTAL_SERVICE_URL}/api/rentals/{rental_id}/",
+            f"{rental_service_url}/api/rentals/{rental_id}/",
             json={
                 'status': 'rejected',
                 'rejection_reason': rejection_reason
             },
             headers={'Content-Type': 'application/json'},
-            timeout=5
+            timeout=10
         )
+        print(f"DEBUG: Rental Service response code: {response.status_code}")
+        print(f"DEBUG: Rental Service response text: {response.text}")
         
         if response.status_code == 200:
             # Обновляем статус локальной записи
