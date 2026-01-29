@@ -10,7 +10,7 @@ class Command(BaseCommand):
         with connection.cursor() as cursor:
             # 1. Drop the table with incorrect schema
             self.stdout.write('Dropping fleet_rentalrecord table...')
-            cursor.execute("DROP TABLE IF EXISTS fleet_rentalrecord CASCADE;")
+            cursor.execute("DROP TABLE IF EXISTS fleet_rentalrecord;")
             
             # 2. Clear migration history for fleet app so Django reapplies 0001_initial
             self.stdout.write('Clearing migration history for fleet app...')
