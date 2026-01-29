@@ -32,26 +32,30 @@ function createCarCard(car) {
     card.className = 'car-card';
     card.dataset.type = car.car_type;
 
-    // Map car IDs to image files
-    const imageMap = {
-        'M5F90': 'bmw_m5_f90_1769585537447.png',
-        'E63S': 'mercedes_e63s_1769585692589.png',
-        'REVUELTO': 'lamborghini_revuelto_1769585801494.png',
-        'SF90': 'ferrari_sf90_1769586005810.png',
-        'PHANTOM': 'rolls_royce_phantom_1769586067724.png',
-        'G63AMG': 'mercedes_g63_1769586376400.png',
-        'M8COMP': 'bmw_m8_competition_1769588008746.png',
-        'M3G80': 'bmw_m3_g80_1769587817963.png',
-        'G6X6': 'mercedes_g63_6x6_1769588309525.png',
-        'GHOST': 'rolls_royce_ghost_1769588635498.png',
-        '812COMP': 'ferrari_812_competizione_1769588222950.png',
-        'M5LOW': 'bmw_m5_f90_1769585537447.png'
-    };
+    // Use full_image_url from API if available, otherwise fallback to local mapping
+    let imageSrc = car.full_image_url;
 
-    const imagePath = imageMap[car.car_id] || 'default.png';
+    if (!imageSrc) {
+        const imageMap = {
+            'M5F90': 'bmw_m5_f90_1769585537447.png',
+            'E63S': 'mercedes_e63s_1769585692589.png',
+            'REVUELTO': 'lamborghini_revuelto_1769585801494.png',
+            'SF90': 'ferrari_sf90_1769586005810.png',
+            'PHANTOM': 'rolls_royce_phantom_1769586067724.png',
+            'G63AMG': 'mercedes_g63_1769586376400.png',
+            'M8COMP': 'bmw_m8_competition_1769588008746.png',
+            'M3G80': 'bmw_m3_g80_1769587817963.png',
+            'G6X6': 'mercedes_g63_6x6_1769588309525.png',
+            'GHOST': 'rolls_royce_ghost_1769588635498.png',
+            '812COMP': 'ferrari_812_competizione_1769588222950.png',
+            'M5LOW': 'bmw_m5_f90_1769585537447.png'
+        };
+        const imagePath = imageMap[car.car_id] || 'default.png';
+        imageSrc = `/static/images/${imagePath}`;
+    }
 
     card.innerHTML = `
-        <img src="/static/images/${imagePath}" alt="${car.brand} ${car.model}" class="car-image">
+        <img src="${imageSrc}" alt="${car.brand} ${car.model}" class="car-image">
         <div class="car-info">
             <div class="car-brand">${car.brand}</div>
             <div class="car-model">${car.model}</div>
