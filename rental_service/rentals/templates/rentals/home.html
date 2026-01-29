@@ -243,6 +243,10 @@
         </div>
     </div>
 
+    <script>
+        // Pass Django settings to JavaScript
+        window.FLEET_SERVICE_URL = "{{ FLEET_SERVICE_URL }}";
+    </script>
     <script src="{% static 'js/main.js' %}"></script>
 </body>
 

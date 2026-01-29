@@ -10,7 +10,10 @@ from .serializers import RentalSerializer, RentalCreateSerializer
 
 def home(request):
     """Главная страница Rental Service"""
-    return render(request, 'rentals/home.html')
+    context = {
+        'FLEET_SERVICE_URL': settings.FLEET_SERVICE_URL
+    }
+    return render(request, 'rentals/home.html', context)
 
 
 def my_bookings(request):

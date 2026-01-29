@@ -6,7 +6,8 @@ document.addEventListener('DOMContentLoaded', function () {
 // Load all cars from API
 async function loadCars() {
     try {
-        const response = await fetch('http://localhost:8001/api/cars/');
+        const fleetServiceUrl = window.FLEET_SERVICE_URL || 'http://localhost:8001';
+        const response = await fetch(`${fleetServiceUrl}/api/cars/`);
         const cars = await response.json();
         displayCars(cars);
     } catch (error) {
