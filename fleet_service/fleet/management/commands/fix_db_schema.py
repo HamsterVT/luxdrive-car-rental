@@ -14,6 +14,9 @@ class Command(BaseCommand):
             
             # 2. Clear migration history for fleet app so Django reapplies 0001_initial
             self.stdout.write('Clearing migration history for fleet app...')
-            cursor.execute("DELETE FROM django_migrations WHERE app = 'fleet';")
+            try:
+                cursor.execute("DELETE FROM django_migrations WHERE app = 'fleet';")
+            except Exception as e:
+                self.stdout.write(f'Skipping migration history clear (table might be missing): {e}')
             
         self.stdout.write(self.style.SUCCESS('Successfully dropped table and cleared migration history. Now run python manage.py migrate to recreate tables.'))
