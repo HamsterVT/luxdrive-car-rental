@@ -36,19 +36,19 @@ class CarListSerializer(serializers.ModelSerializer):
         from django.utils import timezone
         now = timezone.now()
         
-        # Ищем активную аренду (утвержденную и текущую по времени)
+        # Ищем активную аренду (утвержденную и которая еще не закончилась)
         active_rental = RentalRecord.objects.filter(
             car_id=obj.car_id,
             status='approved',
-            start_datetime__lte=now,
             end_datetime__gte=now
-        ).first()
+        ).order_by('start_datetime').first()
         
         if active_rental:
             return {
                 'is_rented': True,
                 'available_from': active_rental.end_datetime,
-                'current_rental_id': active_rental.rental_id
+                'current_rental_id': active_rental.rental_id,
+                'starts_at': active_rental.start_datetime # Добавил для отладки/будущего использования
             }
         
         return {
